@@ -1,0 +1,105 @@
+<!doctype HTML>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <p><code id="time"/></p>
+        <p><span id="details"/></p>
+        <script src="fingerprint2.js"></script>
+        <script>
+            function getFingerprint() {
+                var options = {
+                    preprocessor: null,
+                    audio: {
+                        timeout: 1000,
+                        // On iOS 11, audio context can only be used in response to user interaction.
+                        // We require users to explicitly enable audio fingerprinting on iOS 11.
+                        // See https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
+                        excludeIOS11: true
+                    },
+                    fonts: {
+                        swfContainerId: 'fingerprintjs2',
+                        swfPath: 'flash/compiled/FontList.swf',
+                        userDefinedFonts: [],
+                        extendedJsFonts: false
+                    },
+                    screen: {
+                        // To ensure consistent fingerprints when users rotate their mobile devices
+                        detectScreenOrientation: true
+                    },
+                    plugins: {
+                        sortPluginsFor: [/palemoon/i],
+                        excludeIE: false
+                    },
+                    extraComponents: [],
+                    excludes: {
+                        'webgl': true, // non default to silence warnings potentially giving away fingerprinting
+                        'canvas': true, // non default to silence warnings potentially giving away fingerprinting
+                        // Unreliable on Windows, see https://github.com/fingerprintjs/fingerprintjs/issues/375
+                        'enumerateDevices': true,
+                        // devicePixelRatio depends on browser zoom, and it's impossible to detect browser zoom
+                        'pixelRatio': true,
+                        // DNT depends on incognito mode for some browsers (Chrome) and it's impossible to detect incognito mode
+                        'doNotTrack': true,
+                        // uses js fonts already
+                        'fontsFlash': true,
+                        // Extensions (including AdBlock) are disabled by default in Incognito mod of Chrome and Firefox
+                        // See https://github.com/fingerprintjs/fingerprintjs/issues/405
+                        'adBlock': true
+                    },
+                    NOT_AVAILABLE: 'n',
+                    ERROR: '',
+                    EXCLUDED: ''
+                }
+                
+                Fingerprint2.get(options, function (components) {
+                    var values = components.map(function (component) { return component.value })
+                    var murmur = Fingerprint2.x64hash128(values.join(''), 31)
+                    // construct a map for which we will store all retrieved results
+                    let details = new Map();
+                    if(typeof window.console !== "undefined") {
+                        for (var index in components) {
+                            var obj = components[index];
+                            if (obj.value !== null) {
+                                details.set(obj.key, obj.value.toString());
+                            }
+                        }
+                    }
+                    // construct a map to hold information we are interested in
+                    let sendDetails = new Map();
+                    /*
+                        grab the following information:
+                            * murmur hash
+                            * user agent
+                            * language
+                            * platform
+                    */
+                    sendDetails.set("murmurFingerprint", murmur);
+                    sendDetails.set("userAgent", details.get("userAgent"));
+                    sendDetails.set("language", details.get("language"));
+                    sendDetails.set("platform", details.get("platform"));
+                    // stringify the information
+                    const str = JSON.stringify([...sendDetails]);
+                    // construct a request and send the information
+                    var xmlhttp = new XMLHttpRequest();
+                    xmlhttp.open("POST", "http://localhost:6969/submit");
+                    xmlhttp.setRequestHeader("Content-Type", "application/json");
+                    xmlhttp.send(str);
+                });
+            }
+            if (window.requestIdleCallback) {
+                requestIdleCallback(function () {
+                    getFingerprint();
+                })
+            } else {
+                setTimeout(function () {
+                    getFingerprint(); 
+                }, 500)
+            }
+            
+        </script>
+    </body>
+
+</html>
+
+
