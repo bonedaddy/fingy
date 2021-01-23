@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  nginx:
+    image: fingy-nginx
+    depends_on:
+      - api
+    networks:
+      privnet:
+    ports:
+      - 80:80
+  api:
+    image: fingy-api
+    networks:
+      privnet:
+networks:
+ privnet:
+  driver: bridge
+  ipam:
+    config:
+      - subnet: 172.16.241.0/24

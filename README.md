@@ -1,9 +1,17 @@
 # Fingy
 
-Fingy is a CLI tool that provides an API for collecting browser fingerprint information using fingerprintjs, and stores this information in a sqlite database. It is intended for use with penetration testing, and allowing for easy mass fingerprint collection.
+Fingy is a CLI tool that provides an API for collecting browser fingerprint information using fingerprintjs, and stores this information in a sqlite database. It is intended for use with penetration testing, and allowing for easy mass fingerprint collection. It collects the following information persisting it into a database:
 
-A corresponding HTML page in `index.html` is included that serves as a template to be included in your web pages.
+* murmur fingerprint hash
+* user agent
+* platform
+* language
+* ip address
 
 # Usage
 
-Before using this you will want to change the IP address the information is sent to defined near the bottom of `index.html`. It defaults to sending information to http://localhost:6969/submit
+Fingy is designed to be used with the included docker images and docker compose file. 
+
+# Todo
+
+* make sure nginx correctly passes the client ip address information as we are proxying the request
