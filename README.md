@@ -8,9 +8,15 @@ Fingy is a CLI tool that provides an API for collecting browser fingerprint info
 * language
 * ip address
 
+# Dependencies
+
+* Docker
+* Docker compose
+
 # Usage
 
-Fingy is designed to be used with the included docker images and docker compose file. 
+1) Build docker images with `make build`
+2) Start docker images using `make run`
 
 # Todo
 

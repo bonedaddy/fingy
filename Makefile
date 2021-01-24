@@ -1,3 +1,10 @@
+.PHONY: build
+build: docker-build-nginx docker-build-api
+
+.PHONY: run
+run: build
+	docker-compose up -d
+
 .PHONY: download-fingerprintjs2
 download-fingerprintjs2:
 	wget -O master.zip https://github.com/fingerprintjs/fingerprintjs/archive/2.1.4.zip
